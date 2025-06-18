@@ -53,7 +53,7 @@ CREATE TABLE `announcements` (
 LOCK TABLES `announcements` WRITE;
 /*!40000 ALTER TABLE `announcements` DISABLE KEYS */;
 INSERT INTO `announcements` VALUES
-(6,'&lt;p style=&quot;font-size: large;background-color: yellow;&quot;&gt;This is demo instance of LibreBooking. Do not store any private data. Some features like notoficatio email are not set up. The instance resets every 15 mins.&lt;/a&gt;&lt;/p&gt;',3,NULL,NULL,1);
+(6,'&lt;p style=&quot;font-size: large;background-color: yellow;&quot;&gt;This is demo instance of LibreBooking. Do not store any private data. Some features like notification email are not set up. The instance resets every 60 mins.&lt;/a&gt;&lt;/p&gt;',3,NULL,NULL,1);
 /*!40000 ALTER TABLE `announcements` ENABLE KEYS */;
 UNLOCK TABLES;
 

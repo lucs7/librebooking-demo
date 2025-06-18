@@ -1,2 +1,1 @@
-*/5 * * * * root mysql -u root < /docker-entrypoint-initdb.d/init.sql >> /var/log/cron.log 2>&1
-*/5 * * * * root echo "run every 5 min" >> /var/log/cron.log 2>&1
+*/60 * * * * root mysql -u root < /docker-entrypoint-initdb.d/init.sql >> /var/log/cron.log 2>&1
