@@ -65,7 +65,8 @@ if [ "${LB_ENV}" = "dev" ]; then
 else
   cp /var/www/html/config/config.dist.php /config/config.php
 fi
-chown www-data:www-data /config/config.php
+chown  root:root /config/*
+chmod 444 /config/*
 sed \
   -i /config/config.php \
   -e "s:\(\['registration.captcha.enabled'\]\) = 'true':\1 = 'false':" \
