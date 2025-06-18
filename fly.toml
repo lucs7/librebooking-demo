@@ -1,0 +1,36 @@
+# fly.toml app configuration file generated for librebooking-demo on 2025-06-18T20:45:17+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'librebooking-demo'
+primary_region = 'fra'
+
+[build]
+
+[env]
+  LB_DB_HOST = '127.0.0.1'
+  LB_DB_NAME = 'librebooking'
+  LB_DB_USER = 'librebooking'
+  LB_ENV = 'production'
+  LB_LOG_FOLDER = '/var/log/librebooking'
+  LB_LOG_LEVEL = 'error'
+  LB_LOG_SQL = 'false'
+  TZ = 'Europe/Berlin'
+
+[[mounts]]
+  source = 'config'
+  destination = '/config'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = false
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
