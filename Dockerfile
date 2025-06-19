@@ -58,9 +58,11 @@ RUN set -ex; \
     pecl install timezonedb; \
     docker-php-ext-enable timezonedb;
 
-# Get database basics
-COPY init.sql /docker-entrypoint-initdb.d/init.sql
-COPY reset-cron /etc/cron.d/reset-demo
+# Get database basics and restoration script
+COPY init.sql /usr/local/bin/init.sql
+COPY reset-container-cron /etc/cron.d/reset-container-cron
+COPY restore-config.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/restore-config.sh
 
 # Get and customize librebooking
 USER www-data

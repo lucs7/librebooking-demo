@@ -1,1 +1,0 @@
-*/60 * * * * root mysql -u root < /docker-entrypoint-initdb.d/init.sql >> /var/log/cron.log 2>&1

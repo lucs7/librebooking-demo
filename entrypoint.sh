@@ -65,14 +65,12 @@ if [ "${LB_ENV}" = "dev" ]; then
 else
   cp /var/www/html/config/config.dist.php /config/config.php
 fi
-chown  root:root /config/*
-chmod 444 /config/*
 sed \
   -i /config/config.php \
   -e "s:\(\['registration.captcha.enabled'\]\) = 'true':\1 = 'false':" \
   -e "s:\(\['database'\]\['user'\]\) = '.*':\1 = '${LB_DB_USER}':" \
   -e "s:\(\['database'\]\['password'\]\) = '.*':\1 = '${LB_DB_USER_PWD}':" \
-  -e "s:\(\['database'\]\['name'\]\) = '.*':\1 = '${LB_DB_NAME}':" 
+  -e "s:\(\['database'\]\['name'\]\) = '.*':\1 = '${LB_DB_NAME}':"
 
 # Link the configuration file
 if ! [ -f /var/www/html/config/config.php ]; then
@@ -82,12 +80,16 @@ fi
 # Set secondary configuration settings
 sed \
   -i /config/config.php \
-  -e "s:\(\['install.password'\]\) = '.*':\1 = '${LB_INSTALL_PWD}':" \
   -e "s:\(\['default.timezone'\]\) = '.*':\1 = '${TZ}':" \
   -e "s:\(\['database'\]\['hostspec'\]\) = '.*':\1 = '${LB_DB_HOST}':" \
   -e "s:\(\['logging'\]\['folder'\]\) = '.*':\1 = '${LB_LOG_FOLDER}':" \
   -e "s:\(\['logging'\]\['level'\]\) = '.*':\1 = '${LB_LOG_LEVEL}':" \
   -e "s:\(\['logging'\]\['sql'\]\) = '.*':\1 = '${LB_LOG_SQL}':"
+
+if [ ! -d /config-backup ]; then
+  echo "Creating backup of /config at /config-backup..."
+  cp -r /config /config-backup
+fi
 
 # Create the plugins configuration file inside the volume
 for source in $(find /var/www/html/plugins -type f -name "*dist*"); do
