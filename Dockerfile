@@ -61,8 +61,8 @@ RUN set -ex; \
 # Get database basics and restoration script
 COPY init.sql /usr/local/bin/init.sql
 COPY reset-container-cron /etc/cron.d/reset-container-cron
-COPY restore-config.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/restore-config.sh
+COPY reset-container.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/reset-container.sh
 
 # Get and customize librebooking
 USER www-data
