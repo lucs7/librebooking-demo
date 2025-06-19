@@ -65,9 +65,12 @@ if [ "${LB_ENV}" = "dev" ]; then
 else
   cp /var/www/html/config/config.dist.php /config/config.php
 fi
+
+# Set the configuration file database settings
 sed \
   -i /config/config.php \
   -e "s:\(\['registration.captcha.enabled'\]\) = 'true':\1 = 'false':" \
+  -e "s:\(\['database'\]\['hostspec'\]\) = '.*':\1 = '${LB_DB_HOST}':" \
   -e "s:\(\['database'\]\['user'\]\) = '.*':\1 = '${LB_DB_USER}':" \
   -e "s:\(\['database'\]\['password'\]\) = '.*':\1 = '${LB_DB_USER_PWD}':" \
   -e "s:\(\['database'\]\['name'\]\) = '.*':\1 = '${LB_DB_NAME}':"
@@ -81,7 +84,6 @@ fi
 sed \
   -i /config/config.php \
   -e "s:\(\['default.timezone'\]\) = '.*':\1 = '${TZ}':" \
-  -e "s:\(\['database'\]\['hostspec'\]\) = '.*':\1 = '${LB_DB_HOST}':" \
   -e "s:\(\['logging'\]\['folder'\]\) = '.*':\1 = '${LB_LOG_FOLDER}':" \
   -e "s:\(\['logging'\]\['level'\]\) = '.*':\1 = '${LB_LOG_LEVEL}':" \
   -e "s:\(\['logging'\]\['sql'\]\) = '.*':\1 = '${LB_LOG_SQL}':"
@@ -156,9 +158,9 @@ service mariadb start
 sleep 3
 
 # Run init.sql
-if [ -f /docker-entrypoint-initdb.d/init.sql ]; then
+if [ -f /usr/local/bin/init.sql ]; then
   echo "Running init.sql..."
-  mysql -u root < /docker-entrypoint-initdb.d/init.sql
+  mysql -u root < /usr/local/bin/init.sql
   echo "Starting cron..."
   cron
 fi
