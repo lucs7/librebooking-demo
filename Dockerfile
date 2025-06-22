@@ -30,6 +30,7 @@ RUN set -ex; \
     apt-get install --yes --no-install-recommends \
       cron \
       git \
+      gettext \
       libjpeg-dev \
       libldap-dev \
       libpng-dev \
@@ -59,10 +60,16 @@ RUN set -ex; \
     docker-php-ext-enable timezonedb;
 
 # Get database basics and restoration script
-COPY init.sql /usr/local/bin/init.sql
-COPY reset-container-cron /etc/cron.d/reset-container-cron
-COPY reset-container.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/reset-container.sh
+RUN mkdir -p /setup/backup;
+COPY ./setup/init.sql /setup/init.sql
+COPY ./setup/announcements.sql /setup/announcements.sql
+COPY ./setup/init-database.sh /setup/init-database.sh
+RUN chmod +x /setup/init-database.sh
+
+COPY ./setup/reset-container.sh /setup/reset-container.sh
+RUN chmod +x /setup/reset-container.sh
+
+COPY ./setup/reset-container-cron /etc/cron.d/reset-container-cron
 
 # Get and customize librebooking
 USER www-data
@@ -85,12 +92,20 @@ RUN set -ex; \
       mkdir /var/www/html/tpl_c; \
     fi
 
+
 # Final customization
 USER root
 RUN set -ex; \
     touch /app.log; \
     chown www-data:www-data /app.log; \
-    mkdir /config
+    mkdir /config;
+
+ # Copy images
+COPY images/resource1.jpg /var/www/html/Web/uploads/images/resource1.jpg
+COPY images/resource2.jpg /var/www/html/Web/uploads/images/resource2.jpg
+RUN set -ex; \
+    chown -R www-data:www-data /var/www/html/Web/uploads/images;
+
 
 # Environment
 WORKDIR    /
