@@ -70,6 +70,8 @@ COPY ./setup/reset-container.sh /setup/reset-container.sh
 RUN chmod +x /setup/reset-container.sh
 
 COPY ./setup/reset-container-cron /etc/cron.d/reset-container-cron
+RUN chmod 0644 /etc/cron.d/reset-container-cron && \
+    crontab /etc/cron.d/reset-container-cron
 
 # Get and customize librebooking
 USER www-data

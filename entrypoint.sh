@@ -184,6 +184,9 @@ if [ "$LB_RESET_ON_START" = "true" ]; then
   fi
 fi
 
+# Start cron in background
+service cron start
+
 echo "#########################################"
 echo "#                                       #"
 echo "# Use the following login for demo      #"
