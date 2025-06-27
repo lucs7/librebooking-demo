@@ -73,7 +73,8 @@ sed \
   -e "s:\(\['default.timezone'\]\) = '.*':\1 = '${TZ}':" \
   -e "s:\(\['logging'\]\['folder'\]\) = '.*':\1 = '${LB_LOG_FOLDER}':" \
   -e "s:\(\['logging'\]\['level'\]\) = '.*':\1 = '${LB_LOG_LEVEL}':" \
-  -e "s:\(\['logging'\]\['sql'\]\) = '.*':\1 = '${LB_LOG_SQL}':"
+  -e "s:\(\['logging'\]\['sql'\]\) = '.*':\1 = '${LB_LOG_SQL}':" \
+  -e "s:\(\['ics'\]\['subscription.key'\]\) = '.*':\1 = '$(openssl rand -hex 8)':"
 
 # Create the plugins configuration file inside the volume
 for source in $(find /var/www/html/plugins -type f -name "*dist*"); do

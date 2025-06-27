@@ -21,10 +21,6 @@ primary_region = 'iad'
   LB_SCRIPT_URL = 'https://librebooking-demo.fly.dev/Web'
   RESET_AFTER_SECONDS = 1200
 
-[[mounts]]
-  source = 'config'
-  destination = '/config'
-
 [http_service]
   internal_port = 80
   force_https = true
