@@ -36,12 +36,11 @@ jobs:
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "$DIGEST" > current-digest.txt
 
-      - name: Compare with previous digest
+      - name: Compare with cached digest
         id: compare
         run: |
           echo "Previous digest:"
           cat last-deployed-digest.txt || echo "none"
-
           echo "Current digest:"
           cat current-digest.txt
 
@@ -50,8 +49,7 @@ jobs:
           else
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
-          mv current-digest.txt last-deployed-digest.txt
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Setup Fly.io CLI
         if: steps.compare.outputs.changed == 'true'
