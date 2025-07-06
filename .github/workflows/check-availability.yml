@@ -17,7 +17,7 @@ jobs:
         run: |
           for i in {1..5}; do
             echo "Checking https://librebooking-demo.fly.dev (attempt $i)..."
-            if curl -s --head --fail https://librebooking-demo.fly.dev; then
+            if curl -s --head --fail https://librebooking-demo.fly.dev/Web/; then
               echo "✅ Site is up!"
               echo "available=true" >> $GITHUB_OUTPUT
               exit 0
