@@ -1,0 +1,43 @@
+name: Check Demo Site Availability
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check-availability:
+    name: Check demo site status
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check if demo site is up
+        id: site_check
+        run: |
+          for i in {1..5}; do
+            echo "Checking https://librebooking-demo.fly.dev (attempt $i)..."
+            if curl -s --head --fail https://librebooking-demo.fly.dev; then
+              echo "✅ Site is up!"
+              echo "available=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            echo "⏳ Site not ready yet. Retrying in 120 seconds..."
+            sleep 120
+          done
+
+          echo "❌ Site is unavailable."
+          echo "available=false" >> $GITHUB_OUTPUT
+          exit 0 # don't fail workflow; allow issue to be created
+
+      - name: Checkout repo
+        if: steps.site_check.outputs.available == 'false'
+        uses: actions/checkout@v4
+
+      - name: Create issue if demo site is down
+        if: steps.site_check.outputs.available == 'false'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "🚨 LibreBooking demo site unavailable"
+          content-file: .github/issue-templates/demo-unreachable.md
+          labels: bug, deployment
