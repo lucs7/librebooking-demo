@@ -17,11 +17,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download last deployed digest artifact (if it exists)
-        uses: actions/download-artifact@v4
+      - name: Restore last deployed digest from cache
+        id: restore_digest
+        uses: actions/cache@v4
         with:
-          name: last-deployed-digest
-        continue-on-error: true
+          path: last-deployed-digest.txt
+          key: last-deployed-digest-key
 
       - name: Get current Docker image digest
         id: get_digest
@@ -62,13 +63,10 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Upload current digest as artifact
+      - name: Update cached digest
         if: steps.compare.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: last-deployed-digest
-          path: last-deployed-digest.txt
-          retention-days: 90
+        run: |
+          cp current-digest.txt last-deployed-digest.txt
 
       - name: Echo deploy summary
         if: steps.compare.outputs.changed == 'true'
