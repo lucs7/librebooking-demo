@@ -1,4 +1,4 @@
-FROM librebooking/librebooking:v3.0.1
+FROM librebooking/librebooking:develop
 
 
 # Labels
