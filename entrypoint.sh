@@ -29,52 +29,23 @@ file_env() {
   unset "$fileVar"
 }
 
-LB_LOG_FOLDER=${LB_LOG_FOLDER:-${DFT_LOG_FLR}}
-LB_LOG_LEVEL=${LB_LOG_LEVEL:-${DFT_LOG_LEVEL}}
-LB_LOG_SQL=${LB_LOG_SQL:-${DFT_LOG_SQL}}
+LB_LOGGING_FOLDER=${LB_LOGGING_FOLDER:-${DFT_LOG_FLR}}
+LB_LOGGING_LEVEL=${LB_LOGGING_LEVEL:-${DFT_LOG_LEVEL}}
+LB_LOGGING_SQL=${LB_LOGGING_SQL:-${DFT_LOG_SQL}}
 LB_ENV=${LB_ENV:-${DFT_LB_ENV}}
 LB_PATH=${LB_PATH:-${DFT_LB_PATH}}
 
-LB_DB_USER=${LB_DB_USER:-"librebooking"}
-LB_DB_NAME=${LB_DB_NAME:-"librebooking"}
-LB_DB_USER_PWD="${LB_DB_USER_PWD:-$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32)}"
-LB_DB_HOST=${LB_DB_HOST:-"127.0.0.1"}
+LB_DATABASE_USER=${LB_DATABASE_USER:-"librebooking"}
+LB_DATABASE_NAME=${LB_DATABASE_NAME:-"librebooking"}
+LB_DATABASE_PASSWORD="${LB_DATABASE_PASSWORD:-$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 32)}"
+LB_DATABASE_HOST=${LB_DATABASE_HOST:-"127.0.0.1"}
 
 # No configuration file inside directory /config
 if ! [ -f /config/config.php ]; then
   echo "Initialize file config.php"
   cp /var/www/html/config/config.dist.php /config/config.php
   chown www-data:www-data /config/config.php
-  sed \
-    -i /config/config.php \
-    -e "s:\(\['registration.captcha.enabled'\]\) = 'true':\1 = 'false':" \
-    -e "s:\(\['database'\]\['user'\]\) = '.*':\1 = '${LB_DB_USER}':" \
-    -e "s:\(\['database'\]\['password'\]\) = '.*':\1 = '${LB_DB_USER_PWD}':" \
-    -e "s:\(\['database'\]\['name'\]\) = '.*':\1 = '${LB_DB_NAME}':"
 fi
-
-# Set the script url
-sed \
-  -i /config/config.php \
-  -e "s#\(\['script.url'\]\)[[:space:]]*=[[:space:]]*'.*';#\1 = '${LB_SCRIPT_URL}';#"
-
-# Set the configuration file database settings
-sed \
-  -i /config/config.php \
-  -e "s:\(\['registration.captcha.enabled'\]\) = 'true':\1 = 'false':" \
-  -e "s:\(\['database'\]\['hostspec'\]\) = '.*':\1 = '${LB_DB_HOST}':" \
-  -e "s:\(\['database'\]\['user'\]\) = '.*':\1 = '${LB_DB_USER}':" \
-  -e "s:\(\['database'\]\['password'\]\) = '.*':\1 = '${LB_DB_USER_PWD}':" \
-  -e "s:\(\['database'\]\['name'\]\) = '.*':\1 = '${LB_DB_NAME}':"
-
-# Set secondary configuration settings
-sed \
-  -i /config/config.php \
-  -e "s:\(\['default.timezone'\]\) = '.*':\1 = '${TZ}':" \
-  -e "s:\(\['logging'\]\['folder'\]\) = '.*':\1 = '${LB_LOG_FOLDER}':" \
-  -e "s:\(\['logging'\]\['level'\]\) = '.*':\1 = '${LB_LOG_LEVEL}':" \
-  -e "s:\(\['logging'\]\['sql'\]\) = '.*':\1 = '${LB_LOG_SQL}':" \
-  -e "s:\(\['ics'\]\['subscription.key'\]\) = '.*':\1 = '$(openssl rand -hex 8)':"
 
 # Create the plugins configuration file inside the volume
 for source in $(find /var/www/html/plugins -type f -name "*dist*"); do

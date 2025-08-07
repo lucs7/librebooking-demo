@@ -10,13 +10,12 @@ primary_region = 'iad'
 
 [env]
   LB_RESET_ON_START= true
-  LB_DB_HOST = '127.0.0.1'
-  LB_DB_NAME = 'librebooking'
-  LB_DB_USER = 'librebooking'
+  LB_DATABASE_HOSTSPEC = '127.0.0.1'
+  LB_DATABASE_NAME = 'librebooking'
+  LB_DATABASE_USER = 'librebooking'
   LB_ENV = 'production'
-  LB_LOG_FOLDER = '/var/log/librebooking'
-  LB_LOG_LEVEL = 'error'
-  LB_LOG_SQL = 'false'
+  LB_LOGGING_FOLDER = '/var/log/librebooking'
+  LB_LOGGING_LEVEL = 'error'
   TZ = 'UTC'
   LB_SCRIPT_URL = 'https://librebooking-demo.fly.dev/Web'
   RESET_AFTER_SECONDS = 1200

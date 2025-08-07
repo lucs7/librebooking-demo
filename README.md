@@ -35,7 +35,7 @@ These variables are defined in [`fly.toml`](./fly.toml) and passed to the contai
 | --------------------- | -------- | ---------- | -------------------------------------------------------------------- |
 | `LB_SCRIPT_URL`       | ✅ Yes    | `fly.toml` | Full public URL to the LibreBooking `/Web` directory                 |
 | `RESET_AFTER_SECONDS` | ❌ No     | `fly.toml` | Time in seconds before demo auto-reset. Defaults to `7200` (2 hours) |
-| `LB_DB_NAME`          | ❌ No     | `fly.toml` | Database name. Defaults to `librebooking`                            |
-| `LB_DB_USER`          | ❌ No     | `fly.toml` | Database username. Defaults to `librebooking`                        |
-| `LB_DB_USER_PWD`      | ❌ No     | **secret** | Database user password. Auto-generated if unset at runtime           |
-| `LB_DB_HOST`          | ❌ No     | `fly.toml` | Hostname of the database (e.g., `127.0.0.1`)                         |
+| `LB_DATABASE_NAME`          | ❌ No     | `fly.toml` | Database name. Defaults to `librebooking`                            |
+| `LB_DATABASE_USER`          | ❌ No     | `fly.toml` | Database username. Defaults to `librebooking`                        |
+| `PASSWORD`      | ❌ No     | **secret** | Database user password. Auto-generated if unset at runtime           |
+| `LB_DATABASE_HOSTSPEC`          | ❌ No     | `fly.toml` | Hostname of the database (e.g., `127.0.0.1`)                         |
