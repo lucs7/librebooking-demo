@@ -2,7 +2,7 @@ name: Deploy on Docker Hub image update
 
 on:
   schedule:
-    - cron: "0 * * * *" # Every hour
+    - cron: "0 */2 * * *" # Every 2 hours
   workflow_dispatch:
 
 jobs:
