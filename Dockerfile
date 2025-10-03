@@ -26,6 +26,8 @@ RUN set -ex; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
+# Create local /config directory as we will not mount one
+RUN mkdir -p /config;    
 
 # Get database basics and restoration script
 RUN mkdir -p /setup/backup;
@@ -51,6 +53,5 @@ RUN set -ex; \
 
 # Environment
 WORKDIR    /
-VOLUME     /config
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD        ["apache2-foreground"]
