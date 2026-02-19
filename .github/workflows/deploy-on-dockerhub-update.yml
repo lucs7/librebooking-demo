@@ -12,44 +12,51 @@ jobs:
     concurrency:
       group: deploy-group
       cancel-in-progress: true
-
+    
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore last deployed digest from cache
-        id: restore_digest
-        uses: actions/cache@v4
-        with:
-          path: last-deployed-digest.txt
-          key: last-deployed-digest-key
-
-      - name: Get current Docker image digest
-        id: get_digest
+      - name: Set image variables
+        id: vars
         run: |
-          IMAGE="librebooking/librebooking"
-          TAG="develop"
+          echo "IMAGE=librebooking/librebooking" >> $GITHUB_OUTPUT
+          echo "TAG=develop" >> $GITHUB_OUTPUT
 
-          # Get digest from Docker Hub
-          DIGEST=$(curl -s "https://registry.hub.docker.com/v2/repositories/${IMAGE}/tags/${TAG}" | jq -r '.images[0].digest')
-
+      - name: Get current Docker Hub digest
+        id: dockerhub
+        run: |
+          DIGEST=$(docker manifest inspect ${{ steps.vars.outputs.IMAGE }}:${{ steps.vars.outputs.TAG }} | jq -r '.config.digest')
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-          echo "$DIGEST" > current-digest.txt
+          echo "Current Docker Hub digest: $DIGEST"
 
-      - name: Compare with cached digest
+      - name: Download previous digest
+        id: download
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-digest
+          path: .
+        continue-on-error: true
+
+      - name: Compare digests
         id: compare
         run: |
-          echo "Previous digest:"
-          cat last-deployed-digest.txt || echo "none"
-          echo "Current digest:"
-          cat current-digest.txt
-
-          if cmp -s current-digest.txt last-deployed-digest.txt; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+          if [ -f digest.txt ]; then
+            PREVIOUS_DIGEST=$(cat digest.txt)
+            echo "Previous digest: $PREVIOUS_DIGEST"
+            echo "Current digest: ${{ steps.dockerhub.outputs.digest }}"
+            
+            if [ "$PREVIOUS_DIGEST" != "${{ steps.dockerhub.outputs.digest }}" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "✅ Image has been updated!"
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+              echo "⏭️ No changes detected"
+            fi
           else
             echo "changed=true" >> $GITHUB_OUTPUT
+            echo "🆕 First run, will deploy"
           fi
-        continue-on-error: false
 
       - name: Setup Fly.io CLI
         if: steps.compare.outputs.changed == 'true'
@@ -57,16 +64,18 @@ jobs:
 
       - name: Deploy to Fly.io
         if: steps.compare.outputs.changed == 'true'
-        run: flyctl deploy --remote-only
+        run: flyctl deploy --remote-only --no-cache --recreate-builder
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Update cached digest
+      - name: Save current digest
         if: steps.compare.outputs.changed == 'true'
-        run: |
-          cp current-digest.txt last-deployed-digest.txt
+        run: echo "${{ steps.dockerhub.outputs.digest }}" > digest.txt
 
-      - name: Echo deploy summary
+      - name: Upload digest artifact
         if: steps.compare.outputs.changed == 'true'
-        run: |
-          echo "✅ Deployed image with digest: ${{ steps.get_digest.outputs.digest }}"
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-digest
+          path: digest.txt
+          retention-days: 90
