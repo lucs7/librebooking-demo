@@ -8,16 +8,16 @@ LABEL org.opencontainers.image.licenses="GPL-3.0"
 LABEL org.opencontainers.image.authors="schirmer@ipfdd.de"
 
 # Set entrypoint
-COPY entrypoint.sh /usr/local/bin/
-RUN  chmod +x /usr/local/bin/entrypoint.sh
+COPY --chmod=755 entrypoint.sh /usr/local/bin/
 
+# Switch to root user for package installation
+USER root
 
 # Update and install required debian packages
 ENV DEBIAN_FRONTEND=noninteractive
 RUN set -ex; \
     apt-get update; \
-    apt-get upgrade --yes; \
-    apt-get install --yes --no-install-recommends \
+    apt-get install --yes --no-install-recommends -o Dpkg::Options::="--force-confold" \
       cron \
       gettext \
       mariadb-common \
@@ -33,15 +33,12 @@ RUN mkdir -p /config;
 RUN mkdir -p /setup/backup;
 COPY ./setup/init.sql /setup/init.sql
 COPY ./setup/announcements.sql /setup/announcements.sql
-COPY ./setup/init-database.sh /setup/init-database.sh
-RUN chmod +x /setup/init-database.sh
+COPY --chmod=755 ./setup/init-database.sh /setup/init-database.sh
 
-COPY ./setup/reset-container.sh /setup/reset-container.sh
-RUN chmod +x /setup/reset-container.sh
+COPY --chmod=755 ./setup/reset-container.sh /setup/reset-container.sh
 
-COPY ./setup/reset-container-cron /etc/cron.d/reset-container-cron
-RUN chmod 0644 /etc/cron.d/reset-container-cron && \
-    crontab /etc/cron.d/reset-container-cron
+COPY --chmod=644 ./setup/reset-container-cron /etc/cron.d/reset-container-cron
+RUN crontab /etc/cron.d/reset-container-cron
 
 
 # Copy images for sample data
