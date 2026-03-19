@@ -1,7 +1,14 @@
 #!/bin/bash
 #Auto-initiate DB
 echo "Initiating database"
-envsubst < /setup/init.sql  | mysql -u root
+mysql -u root <<EOF
+CREATE DATABASE IF NOT EXISTS ${LB_DATABASE_NAME};
+CREATE USER IF NOT EXISTS '${LB_DATABASE_USER}'@'%' IDENTIFIED BY '${LB_DATABASE_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${LB_DATABASE_USER}.* TO '${LB_DATABASE_NAME}'@'%';
+EOF
+
+echo "Run initial database schema"
+mysql -u root "${LB_DATABASE_NAME}" <  "/var/www/html/database_schema/create-schema.sql"
 
 #Run upgrades
 echo "Running database upgrades"

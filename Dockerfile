@@ -31,7 +31,6 @@ RUN mkdir -p /config;
 
 # Get database basics and restoration script
 RUN mkdir -p /setup/backup;
-COPY ./setup/init.sql /setup/init.sql
 COPY ./setup/announcements.sql /setup/announcements.sql
 COPY --chmod=755 ./setup/init-database.sh /setup/init-database.sh
 
