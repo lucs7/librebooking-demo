@@ -20,6 +20,7 @@ done
 echo "Seeding sample data"
 mysql -u root "${LB_DATABASE_NAME}" <  "/var/www/html/database_schema/create-data.sql"
 mysql -u root "${LB_DATABASE_NAME}"  < "/var/www/html/database_schema/sample-data-utf8.sql"
+mysql -u root "${LB_DATABASE_NAME}"  < "/var/www/html/database_schema/sample-data-large-utf8.sql"
 mysql -u root "${LB_DATABASE_NAME}"  < "/setup/announcements.sql"
 
 echo "Add demo users"
