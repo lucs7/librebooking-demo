@@ -23,19 +23,32 @@ jobs:
           echo "IMAGE=librebooking/librebooking" >> $GITHUB_OUTPUT
           echo "TAG=develop" >> $GITHUB_OUTPUT
 
-      - name: Get current Docker Hub digest
+      - name: Get current Docker Hub image ID
         id: dockerhub
         run: |
-          DIGEST=$(docker manifest inspect ${{ steps.vars.outputs.IMAGE }}:${{ steps.vars.outputs.TAG }} | jq -r '.config.digest')
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-          echo "Current Docker Hub digest: $DIGEST"
+          IMAGE_ID=$(docker buildx imagetools inspect docker.io/${{ steps.vars.outputs.IMAGE }}:${{ steps.vars.outputs.TAG }} --format '{{json .Manifest}}' | jq -r '.digest')
+          echo "digest=$IMAGE_ID" >> $GITHUB_OUTPUT
+          echo "Current Docker Hub image ID: $IMAGE_ID"
 
-      - name: Download previous digest
-        id: download
-        uses: actions/download-artifact@v4
+      - name: Find previous successful build run
+        id: find-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          WORKFLOW_FILE: deploy-on-dockerhub-update.yml
+        run: |
+          RUN_ID=$(gh api \
+            "/repos/$REPO/actions/workflows/$WORKFLOW_FILE/runs?branch=main&status=success&per_page=1" \
+            --jq '.workflow_runs[0].id')
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Download digest artifact
+        uses: actions/download-artifact@v6
         with:
-          name: docker-digest
-          path: .
+          name: image-digest
+          run-id: ${{ steps.find-run.outputs.RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./artifact
         continue-on-error: true
 
       - name: Compare digests
@@ -74,7 +87,7 @@ jobs:
 
       - name: Upload digest artifact
         if: steps.compare.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docker-digest
           path: digest.txt
